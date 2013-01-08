@@ -124,6 +124,9 @@ class restore_controller extends backup implements loggable {
             // Load plan
             $this->load_plan();
 
+            // Apply all default settings (based on type/format/mode)
+            $this->apply_defaults();
+
             // Perform all initial security checks and apply (2nd param) them to settings automatically
             restore_check::check_security($this, true);
 
@@ -470,6 +473,12 @@ class restore_controller extends backup implements loggable {
         $this->plan = new restore_plan($this);
         $this->plan->build(); // Build plan for this controller
         $this->set_status(backup::STATUS_PLANNED);
+    }
+
+    protected function apply_defaults() {
+        $this->log('applying plan defaults', backup::LOG_DEBUG);
+        restore_controller_dbops::apply_config_defaults($this);
+        $this->set_status(backup::STATUS_CONFIGURED);
     }
 }
 

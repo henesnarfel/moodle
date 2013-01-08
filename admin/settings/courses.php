@@ -206,6 +206,21 @@ if ($hassiteconfig
     //$temp->add(new admin_setting_configcheckbox('backup/backup_auto_messages', new lang_string('messages', 'message'), new lang_string('backupmessageshelp','message'), 0));
     //$temp->add(new admin_setting_configcheckbox('backup/backup_auto_blogs', new lang_string('blogs', 'blog'), new lang_string('backupblogshelp','blog'), 0));
 
-    $ADMIN->add('backups', $temp);
+    $ADMIN->add('backups', $temp);	
+
+    // Add a category for restore defaults
+    $ADMIN->add('courses', new admin_category('restores', new lang_string('restores','admin')));
+
+    // Create a page for general restore configuration and defaults.
+    $temp = new admin_settingpage('restoregeneralsettings', new lang_string('generalrestoredefaults', 'backup'), 'moodle/restore:restorecourse');
+
+    // General restore defaults section.
+    $temp->add(new admin_setting_heading('generalsettings', new lang_string('generalrestoresettings', 'backup'), ''));
+    $temp->add(new admin_setting_configcheckbox_with_lock('restore/restore_course_configuration', new lang_string('setting_overwriteconf','backup'), new lang_string('configcourseconfiguration','backup'), array('value'=>0, 'locked'=>0)));
+    $temp->add(new admin_setting_configcheckbox('restore/restore_course_name', new lang_string('setting_course_fullname','backup'), new lang_string('configcoursename','backup'), 1));
+    $temp->add(new admin_setting_configcheckbox('restore/restore_course_shortname', new lang_string('setting_course_shortname','backup'), new lang_string('configcourseshortname','backup'), 1));
+    $temp->add(new admin_setting_configcheckbox('restore/restore_course_startdate', new lang_string('setting_course_startdate','backup'), new lang_string('configcoursestartdate','backup'), 1));
+
+    $ADMIN->add('restores', $temp);
 
 } // end of speedup

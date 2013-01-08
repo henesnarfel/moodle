@@ -128,4 +128,69 @@ abstract class restore_controller_dbops extends restore_dbops {
         // Invalidate the backup_ids caches.
         restore_dbops::reset_backup_ids_cached();
     }
+
+    /**
+    * Sets the default values for the settings in a restore operation
+    *
+    * Based on the mode of the restore it will delegate the process to
+    * other methods like {@link apply_general_config_defaults} ...
+    * to get proper defaults loaded
+    *
+    * @param restore_controller $controller
+    */
+    public static function apply_config_defaults(restore_controller $controller) {
+        self::apply_general_config_defaults($controller);
+    }
+
+    /**
+    * Sets the controller settings default values from the restore config.
+    *
+    * @param restore_controller $controller
+    */
+    private static function apply_general_config_defaults(restore_controller $controller) {
+        global $COURSE;
+        $settings = array(
+            // Config name => Setting name
+            'restore_course_configuration' => 'overwrite_conf',
+            'restore_course_name' => 'course_fullname',
+            'restore_course_shortname' => 'course_shortname',
+            'restore_course_startdate' => 'course_startdate',
+        );
+        $plan = $controller->get_plan();
+        foreach ($settings as $config=>$settingname) {
+            $value = get_config('restore', $config);
+            $locked = (get_config('restore', $config.'_locked') == true);
+            if ($plan->setting_exists($settingname)) {
+                $setting = $plan->get_setting($settingname);
+                if ($setting->get_value() != $value || 1==1) {
+                    switch ($settingname) {
+                        case 'course_fullname':
+                            if (!$value) {
+                                $setting->set_value($COURSE->fullname);
+                                $setting->set_status(base_setting::LOCKED_BY_CONFIG);
+                            }
+                            break;
+                        case 'course_shortname':
+                            if (!$value) {
+                                $setting->set_value($COURSE->shortname);
+                                $setting->set_status(base_setting::LOCKED_BY_CONFIG);
+                            }
+                            break;
+                        case 'course_startdate':
+                            if (!$value) {
+                                $setting->set_value($COURSE->startdate);
+                                $setting->set_status(base_setting::LOCKED_BY_CONFIG);
+                            }
+                            break;
+                        default:
+                            $setting->set_value($value);
+                    }
+
+                    if ($locked) {
+                        $setting->set_status(base_setting::LOCKED_BY_CONFIG);
+                    }
+                }
+            }
+        }
+    }
 }
