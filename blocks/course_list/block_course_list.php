@@ -34,13 +34,9 @@ class block_course_list extends block_list {
 
         if (empty($CFG->disablemycourses) and isloggedin() and !isguestuser() and
           !(has_capability('moodle/course:update', context_system::instance()) and $adminseesall)) {    // Just print My Courses
-            if ($courses = enrol_get_my_courses(NULL, 'visible DESC, fullname ASC')) {
-                foreach ($courses as $course) {
-                    $coursecontext = context_course::instance($course->id);
-                    $linkcss = $course->visible ? "" : " class=\"dimmed\" ";
-                    $this->content->items[]="<a $linkcss title=\"" . format_string($course->shortname, true, array('context' => $coursecontext)) . "\" ".
-                               "href=\"$CFG->wwwroot/course/view.php?id=$course->id\">".$icon.format_string($course->fullname). "</a>";
-                }
+            if ($courses = enrol_get_my_courses(NULL, 'sortorder ASC, fullname ASC')) {
+        		$this->get_block_course_list($courses);
+
                 $this->title = get_string('mycourses');
             /// If we can update any course of the view all isn't hidden, show the view all courses link
                 if (has_capability('moodle/course:update', context_system::instance()) || empty($CFG->block_course_list_hideallcourseslink)) {
@@ -149,6 +145,114 @@ class block_course_list extends block_list {
      */
     public function get_aria_role() {
         return 'navigation';
+    }
+
+    function get_block_course_list($courses) {
+        global $CFG, $OUTPUT;
+        $icon  = '<img src="' . $OUTPUT->pix_url('i/course') . '" class="icon" alt="" />&nbsp;';
+	
+	    if (empty($CFG->block_course_list_categoryview) || $CFG->block_course_list_categoryview == "none") {
+            foreach ($courses as $course) {
+                $coursedisplay = (empty($CFG->block_course_list_showshortname)) ? $course->fullname : get_string('courseextendednamedisplay', '', $course);
+        
+	            $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+	            $linkcss = $course->visible ? "" : " class=\"dimmed\" ";
+	            $this->content->items[]="<a $linkcss title=\"" . format_string($course->shortname, true, array('context' => $coursecontext)) . "\" ".
+	                       "href=\"$CFG->wwwroot/course/view.php?id=$course->id\">".$icon.$coursedisplay. "</a>";
+            }
+	    } elseif($CFG->block_course_list_categoryview == "top") {
+	        $prevcatid = ""; // keeps previous category
+
+            foreach ($courses as $course) {
+                $category = get_course_category($course->category);
+                
+                $i = 0; // prevent possible infinite loop
+                while ($category->parent != 0 && $i < 10) {
+                    $category = get_course_category($category->parent);
+                    $i++;
+                }
+
+                if ($category->id != $prevcatid) {
+                    $catcontext = context_coursecat::instance($category->id);
+                    if ($category->visible || has_capability('moodle/category:viewhiddencategories', $catcontext) || !empty($CFG->block_course_list_showhiddencategories)) {
+                    	$this->content->items[] = "<h2>".$category->name."</h2>";
+                    } else {
+                        $this->content->items[] = "<h2>".str_repeat("-",30)."</h2>";
+                    }
+                }
+
+        	    $coursedisplay = empty($CFG->block_course_list_showshortname) ? $course->fullname : get_string('courseextendednamedisplay', '', $course);
+
+                $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+                $linkcss = $course->visible ? "" : " class=\"dimmed\" ";
+                $this->content->items[]="<a $linkcss title=\"" . format_string($course->shortname, true, array('context' => $coursecontext)) . "\" ".
+                           "href=\"$CFG->wwwroot/course/view.php?id=$course->id\">".$icon.$coursedisplay. "</a>";
+
+                $prevcatid = $category->id;
+            }
+        } elseif($CFG->block_course_list_categoryview == "sub") { //This option is very ugly and could use some reworking if anyone has a better way
+            $data = array();
+            $temp = array();
+            foreach ($courses as $course) {
+                $temp = get_course_category($course->category);
+                if (!isset($data[$temp->parent]) && $temp->parent != 0) {
+                    $path = array_filter(explode("/", $temp->path));
+                    $previd = 0;
+                    foreach ($path as $p) {
+                        if (!isset($data[$p])) {
+                            $temp = get_course_category($p);
+                            $data[$p]["category"] = $temp;
+                            $data[$p]["courses"] = array();
+                        }
+                        $previd = $p;
+                    }
+                }
+                $data[$course->category]["category"] = $temp;
+                $data[$course->category]["courses"][] = $course;
+            }
+
+            $prevcat = array();
+            $currcat = array();
+            $courselist = "";
+            foreach ($data as $key => $arr) {
+                $currcat = $arr["category"];
+
+                $catcontext = context_coursecat::instance($currcat->id);
+
+                    if (!empty($prevcat)) {
+                        if ($currcat->parent == 0) {
+                            $courselist .= "</ul>\n";
+                        }
+                        if ($currcat->depth > $prevcat->depth) {
+                            $courselist .= "<li>\n";
+                        } elseif ($currcat->parent == 0 && $currcat->depth < $prevcat->depth) {
+                            for ($i = $currcat->depth; $i < $prevcat->depth; $i++) {
+                                $courselist .= "</li>\n</ul>\n";
+                            }
+                        } elseif ($currcat->depth < $prevcat->depth) {
+                            $courselist .= "</ul></li>\n</ul>\n";
+                        }
+                    }
+                if ($currcat->visible || has_capability('moodle/category:viewhiddencategories', $catcontext) || !empty($CFG->block_course_list_showhiddencategories)) {
+                    $courselist .= "<ul>\n<li><h2>".$currcat->name."</h2></li>\n";
+                } else {
+                    $courselist .= "<ul>\n<li><h2>".str_repeat("-",30)."</h2></li>\n"; //have to show something for cat heading or view gets messed up
+                }
+                $prevcat = $currcat;
+
+                foreach ($arr["courses"] as $course) {
+                    $coursedisplay = empty($CFG->block_course_list_showshortname) ? $course->fullname : get_string('courseextendednamedisplay', '', $course);
+
+                    $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+                    $linkcss = $course->visible ? "" : " class=\"dimmed\" ";
+                    $courselist .= "<li><a $linkcss title=\"" . format_string($course->shortname, true, array('context' => $coursecontext)) . "\" ".
+                               "href=\"$CFG->wwwroot/course/view.php?id=$course->id\">".$icon.$coursedisplay. "</a></li>";
+                }
+
+            }
+            $courselist .= "</ul>\n</li>\n</ul>\n";
+            $this->content->items[] = $courselist;
+        }
     }
 }
 

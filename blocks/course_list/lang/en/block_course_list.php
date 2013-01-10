@@ -25,10 +25,24 @@
 
 $string['adminview'] = 'Admin view';
 $string['allcourses'] = 'Admin user sees all courses';
+$string['categoryview'] = 'Display Categories';
 $string['configadminview'] = 'What should the admin see in the course list block?';
+$string['configcategoryview'] = 'Determines whether to show any categories for the course listing';
 $string['confighideallcourseslink'] = 'Hide "All courses" link at the bottom of the block. Link hiding does not affects Admin\'s view';
+$string['configshowhiddencategories'] = 'Show hidden category name regardless of role';
+$string['configshowshortname'] = 'Show short name as well as full name when displaying lists of courses.';
 $string['course_list:addinstance'] = 'Add a new courses block';
 $string['course_list:myaddinstance'] = 'Add a new courses block to the My Moodle page';
 $string['hideallcourseslink'] = 'Hide All courses link';
+$string['nocategory'] = 'Display only courses';
 $string['owncourses'] = 'Admin user sees own courses';
 $string['pluginname'] = 'Courses';
+$string['showhiddencategories'] = 'Display hidden categories';
+$string['showshortnames'] = 'Display short names';
+$string['showsubcategory'] = 'Display Top-level and Sub Categories';
+$string['showtopcategory'] = 'Display Top-level Categories';
+
+
+
+
+
