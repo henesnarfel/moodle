@@ -98,7 +98,7 @@ class format_topics extends format_base {
             } else {
                 $usercoursedisplay = $course->coursedisplay;
             }
-            if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+            if ($sectionno != 0 && ($usercoursedisplay == COURSE_DISPLAY_MULTIPAGE || $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE_HIDE)) {
                 $url->param('section', $sectionno);
             } else {
                 if (!empty($options['navigation'])) {
@@ -245,7 +245,8 @@ class format_topics extends format_base {
                     'element_attributes' => array(
                         array(
                             COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
-                            COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
+                            COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi'),
+                            COURSE_DISPLAY_MULTIPAGE_HIDE => new lang_string('coursedisplay_multi_hide')
                         )
                     ),
                     'help' => 'coursedisplay',

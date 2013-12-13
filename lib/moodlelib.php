@@ -509,6 +509,11 @@ define('COURSE_DISPLAY_SINGLEPAGE', 0);
 define('COURSE_DISPLAY_MULTIPAGE', 1);
 
 /**
+ * Course display settings: split pages into a page per section and hides general section when viewing section.
+ */
+define('COURSE_DISPLAY_MULTIPAGE_HIDE', 2);
+
+/**
  * Authentication constant: String used in password field when password is not stored.
  */
 define('AUTH_PASSWORD_NOT_CACHED', 'not cached');

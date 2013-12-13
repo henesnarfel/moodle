@@ -82,6 +82,7 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
     $choices = array();
     $choices[COURSE_DISPLAY_SINGLEPAGE] = new lang_string('coursedisplay_single');
     $choices[COURSE_DISPLAY_MULTIPAGE] = new lang_string('coursedisplay_multi');
+    $choices[COURSE_DISPLAY_MULTIPAGE_HIDE] = new lang_string('coursedisplay_multi_hide');
     $temp->add(new admin_setting_configselect('moodlecourse/coursedisplay', new lang_string('coursedisplay'),
         new lang_string('coursedisplay_help'), COURSE_DISPLAY_SINGLEPAGE, $choices));
 

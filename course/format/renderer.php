@@ -633,15 +633,19 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
         }
 
         // Copy activity clipboard..
-        echo $this->course_activity_clipboard($course, $displaysection);
-        $thissection = $modinfo->get_section_info(0);
-        if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-            echo $this->start_section_list();
-            echo $this->section_header($thissection, $course, true, $displaysection);
-            echo $this->courserenderer->course_section_cm_list($course, $thissection, $displaysection);
-            echo $this->courserenderer->course_section_add_cm_control($course, 0, $displaysection);
-            echo $this->section_footer();
-            echo $this->end_section_list();
+        echo $this->course_activity_clipboard($course, $displaysection);        
+        $courseformat = course_get_format($course)->get_course();
+        if($courseformat->coursedisplay == COURSE_DISPLAY_MULTIPAGE)
+        {
+            $thissection = $modinfo->get_section_info(0);
+            if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
+                echo $this->start_section_list();
+                echo $this->section_header($thissection, $course, true, $displaysection);
+                echo $this->courserenderer->course_section_cm_list($course, $thissection, $displaysection);
+                echo $this->courserenderer->course_section_add_cm_control($course, 0, $displaysection);
+                echo $this->section_footer();
+                echo $this->end_section_list();
+            }
         }
 
         // Start single-section div
@@ -750,7 +754,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                 continue;
             }
 
-            if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+            if (!$PAGE->user_is_editing() && ($course->coursedisplay == COURSE_DISPLAY_MULTIPAGE || $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE_HIDE)) {
                 // Display section summary only.
                 echo $this->section_summary($thissection, $course, null);
             } else {

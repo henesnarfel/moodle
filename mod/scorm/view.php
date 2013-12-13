@@ -88,7 +88,7 @@ if (!empty($scorm->popup)) {
 
     $courseformat = course_get_format($course)->get_course();
     $sectionid = '';
-    if (isset($courseformat->coursedisplay) && $courseformat->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+    if (isset($courseformat->coursedisplay) && ($courseformat->coursedisplay == COURSE_DISPLAY_MULTIPAGE || $courseformat->coursedisplay == COURSE_DISPLAY_MULTIPAGE_HIDE)) {
         $sectionid = $cm->sectionnum;
     }
 

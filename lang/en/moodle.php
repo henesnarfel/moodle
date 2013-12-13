@@ -315,6 +315,7 @@ $string['coursedisplay'] = 'Course layout';
 $string['coursedisplay_help'] = 'This setting determines whether the whole course is displayed on one page or split over several pages.';
 $string['coursedisplay_single'] = 'Show all sections on one page';
 $string['coursedisplay_multi'] = 'Show one section per page';
+$string['coursedisplay_multi_hide'] = 'Show one section per page/hide General Section';
 $string['coursedeleted'] = 'Deleted course {$a}';
 $string['courseextendednamedisplay'] = '{$a->shortname} {$a->fullname}';
 $string['coursefiles'] = 'Legacy course files';
